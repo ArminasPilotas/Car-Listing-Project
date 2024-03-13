@@ -1,8 +1,12 @@
-﻿namespace FirstMauiApp
+﻿
+using FirstMauiApp;
+
+namespace FirstMauiApp
 {
     public partial class MainPage : ContentPage
     {
         int count = 0;
+        public const double FontSize = 22;
 
         public MainPage()
         {
@@ -22,4 +26,12 @@
         }
     }
 
+    public class GlobalFontSizeExtension : IMarkupExtension
+    {
+        public object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return MainPage.FontSize;
+        }
+    }
 }
+

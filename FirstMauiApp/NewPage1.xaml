@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="FirstMauiApp.NewPage1"
+             xmlns:resources="clr-namespace:FirstMauiApp"
              Title="NewPage1">
     <VerticalStackLayout>
         <Label 
@@ -10,6 +11,7 @@
             HorizontalOptions="Center"
             x:Name ="lblCounter"
             FontSize="22"
+            TextColor="{x:Static Member=resources:SharedResources.FontColour}"
             FontAttributes="Bold"/>
 
         <Button

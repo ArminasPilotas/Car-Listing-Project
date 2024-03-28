@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using FirstMauiApp.Services;
+using FirstMauiApp.ViewModels;
+using Microsoft.Extensions.Logging;
 
 namespace FirstMauiApp
 {
@@ -15,8 +17,12 @@ namespace FirstMauiApp
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            builder.Services.AddSingleton<CarService>();
+            builder.Services.AddSingleton<CarListViewModel>();
+            builder.Services.AddSingleton<MainPage>();
+
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();

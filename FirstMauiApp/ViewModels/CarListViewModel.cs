@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using FirstMauiApp.Models;
 using FirstMauiApp.Services;
 using System.Collections.ObjectModel;
@@ -16,6 +17,9 @@ namespace FirstMauiApp.ViewModels
             Title = "Car List";
             this.carService = carService;
         }
+
+        [ObservableProperty]
+        bool isRefreshing;
 
         [RelayCommand]
         async Task GetCarListAsync()
@@ -38,6 +42,7 @@ namespace FirstMauiApp.ViewModels
             finally
             {
                 IsLoading = false;
+                IsRefreshing = false;
             }
         }
     }

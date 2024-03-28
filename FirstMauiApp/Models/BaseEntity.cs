@@ -6,12 +6,8 @@ using System.Threading.Tasks;
 
 namespace FirstMauiApp.Models
 {
-    public class Car : BaseEntity
+    public abstract class BaseEntity
     {
-        public string Make { get; set; }
-
-        public string Model { get; set; }
-
-        public string Vin { get; set; }
+        public int Id { get; set; }
     }
 }

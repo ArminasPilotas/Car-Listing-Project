@@ -41,7 +41,7 @@ namespace FirstMauiApp.Services
                 {
                     Id = 7, Make = "Ferrari", Model = "Spider", Vin = "123"
                 }
-            }
+            };
         }
     }
 }

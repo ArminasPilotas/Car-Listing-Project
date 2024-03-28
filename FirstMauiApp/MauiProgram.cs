@@ -1,5 +1,6 @@
 ﻿using FirstMauiApp.Services;
 using FirstMauiApp.ViewModels;
+using FirstMauiApp.Views;
 using Microsoft.Extensions.Logging;
 
 namespace FirstMauiApp
@@ -18,8 +19,12 @@ namespace FirstMauiApp
                 });
 
             builder.Services.AddSingleton<CarService>();
+
             builder.Services.AddSingleton<CarListViewModel>();
+            builder.Services.AddTransient<CarDetailsViewModel>();
+
             builder.Services.AddSingleton<MainPage>();
+            builder.Services.AddTransient<CarDetailsPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();

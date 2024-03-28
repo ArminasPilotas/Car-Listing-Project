@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using FirstMauiApp.Models;
 using FirstMauiApp.Services;
+using FirstMauiApp.Views;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
@@ -44,6 +45,17 @@ namespace FirstMauiApp.ViewModels
                 IsLoading = false;
                 IsRefreshing = false;
             }
+        }
+
+        [RelayCommand]
+        async Task GetCarDetails(Car car)
+        {
+            if (car is null) return;
+
+            await Shell.Current.GoToAsync(nameof(CarDetailsPage), true, new Dictionary<string, object>
+            {
+                {nameof(Car), car }
+            });
         }
     }
 }

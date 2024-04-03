@@ -37,27 +37,43 @@ namespace CarListApp.Api
             app.UseHttpsRedirection();
             app.UseCors("AllowAll");
 
-            app.UseAuthorization();
+            app.MapGet("/cars", async (CarListDbContext db) => await db.Cars.ToListAsync());
+            app.MapGet("/cars/{id}", async (int id, CarListDbContext db) =>
+                await db.Cars.FindAsync(id) is Car car ? Results.Ok(car) : Results.NotFound()
+            );
 
-            var summaries = new[]
+            app.MapPut("/cars/{id}", async (int id, Car car, CarListDbContext db) =>
             {
-                "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-            };
+                var record = await db.Cars.FindAsync(id);
+                if (record is null) return Results.NotFound();
 
-            app.MapGet("/weatherforecast", (HttpContext httpContext) =>
+                car.Make = record.Make;
+                car.Model = record.Model;
+                car.Vin = record.Vin;
+
+                await db.SaveChangesAsync();
+
+                return Results.NoContent();
+            });
+
+            app.MapDelete("/cars/{id}", async (int id, CarListDbContext db) =>
             {
-                var forecast = Enumerable.Range(1, 5).Select(index =>
-                    new WeatherForecast
-                    {
-                        Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                        TemperatureC = Random.Shared.Next(-20, 55),
-                        Summary = summaries[Random.Shared.Next(summaries.Length)]
-                    })
-                    .ToArray();
-                return forecast;
-            })
-            .WithName("GetWeatherForecast")
-            .WithOpenApi();
+                var record = await db.Cars.FindAsync(id);
+                if (record is null) return Results.NotFound();
+
+                db.Remove(record);
+                await db.SaveChangesAsync();
+
+                return Results.NoContent();
+            });
+
+            app.MapPost("/cars", async (int id, Car car, CarListDbContext db) =>
+            {
+                await db.AddAsync(car);
+                await db.SaveChangesAsync();
+
+                return Results.Created($"/cars/{car.Id}", car);
+            });
 
             app.Run();
         }

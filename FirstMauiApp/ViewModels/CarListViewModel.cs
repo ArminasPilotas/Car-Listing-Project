@@ -15,10 +15,17 @@ namespace FirstMauiApp.ViewModels
         public CarListViewModel()
         {
             Title = "Car List";
+            GetCarListAsync().Wait();
         }
 
         [ObservableProperty]
         bool isRefreshing;
+        [ObservableProperty]
+        string make;
+        [ObservableProperty]
+        string model;
+        [ObservableProperty]
+        string vin;
 
         [RelayCommand]
         async Task GetCarListAsync()
@@ -46,14 +53,56 @@ namespace FirstMauiApp.ViewModels
         }
 
         [RelayCommand]
-        async Task GetCarDetails(Car car)
+        async Task GetCarDetails(int id)
         {
-            if (car is null) return;
+            if (id == default) return;
 
-            await Shell.Current.GoToAsync(nameof(CarDetailsPage), true, new Dictionary<string, object>
+            await Shell.Current.GoToAsync($"{nameof(CarDetailsPage)}?Id={id}", true);
+        }
+
+        [RelayCommand]
+        async Task AddCarAsync()
+        {
+            if (string.IsNullOrEmpty(Make) ||  string.IsNullOrEmpty(Model) || string.IsNullOrEmpty(Vin))
             {
-                {nameof(Car), car }
-            });
+                await Shell.Current.DisplayAlert("Invalid Data", "Please insert valid data", "Ok");
+                return;
+            }
+
+            var car = new Car
+            {
+                Make = Make,
+                Model = Model,
+                Vin = Vin
+            };
+
+            App.CarService.AddCar(car);
+            await Shell.Current.DisplayAlert("Success", App.CarService.StatusMessage, "Ok");
+            await GetCarListAsync();
+        }
+
+        [RelayCommand]
+        async Task DeleteCarAsync(int id)
+        {
+            if (id == 0)
+            {
+                await Shell.Current.DisplayAlert("Invalid Record", "Please try again", "Ok");
+                return;
+            }
+
+            var result = App.CarService.DeleteCar(id);
+            if (result == default) await Shell.Current.DisplayAlert("Failed", "Please insert valid data", "Ok");
+            else
+            {
+                await Shell.Current.DisplayAlert("Deletion Successful", "Record Removed Successfully", "Ok");
+                await GetCarListAsync();
+            }
+        }
+
+        [RelayCommand]
+        async Task UpdateCarAsync(int id)
+        {
+            return;
         }
     }
 }

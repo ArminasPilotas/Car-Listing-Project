@@ -1,10 +1,5 @@
 ﻿using FirstMauiApp.Models;
 using SQLite;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirstMauiApp.Services
 {
@@ -28,6 +23,21 @@ namespace FirstMauiApp.Services
             conn.CreateTable<Car>();
         }
 
+        public Car GetCar(int id)
+        {
+            try
+            {
+                Init();
+                return conn.Table<Car>().FirstOrDefault(x => x.Id == id);
+            }
+            catch (Exception)
+            {
+                StatusMessage = "Failed to retrieve data.";
+            }
+
+            return null;
+        }
+
         public List<Car> GetCars()
         {
             try
@@ -41,6 +51,41 @@ namespace FirstMauiApp.Services
             }
 
             return new List<Car>();
+        }
+        
+        public void AddCar(Car car)
+        {
+            try
+            {
+                Init();
+
+                if (car is null)
+                {
+                    throw new Exception("Invalid Car Record.");
+                }
+
+                var result = conn.Insert(car);
+                StatusMessage = result == 0 ? "Insert Failed" : "Insert Successful";
+            }
+            catch (Exception)
+            {
+                StatusMessage = "Failed to Insert data.";
+            }
+        }
+
+        public int DeleteCar(int id)
+        {
+            try
+            {
+                Init();
+                return conn.Table<Car>().Delete(x => x.Id == id);
+            }
+            catch (Exception)
+            {
+                StatusMessage = "Failed to delete data.";
+            }
+
+            return default;
         }
     }
 }

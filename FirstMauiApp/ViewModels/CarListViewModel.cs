@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FirstMauiApp.Models;
-using FirstMauiApp.Services;
 using FirstMauiApp.Views;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -10,11 +9,14 @@ namespace FirstMauiApp.ViewModels
 {
     public partial class CarListViewModel : BaseViewModel
     {
+        const string editButtonText = "Update Car";
+        const string createButtonText = "Add Car";
         public ObservableCollection<Car> Cars { get; private set; } = [];
 
         public CarListViewModel()
         {
             Title = "Car List";
+            AddEditButtonText = createButtonText;
             GetCarListAsync().Wait();
         }
 
@@ -26,6 +28,10 @@ namespace FirstMauiApp.ViewModels
         string model;
         [ObservableProperty]
         string vin;
+        [ObservableProperty]
+        string addEditButtonText;
+        [ObservableProperty]
+        int carId;
 
         [RelayCommand]
         async Task GetCarListAsync()
@@ -61,7 +67,7 @@ namespace FirstMauiApp.ViewModels
         }
 
         [RelayCommand]
-        async Task AddCarAsync()
+        async Task SaveCarAsync()
         {
             if (string.IsNullOrEmpty(Make) ||  string.IsNullOrEmpty(Model) || string.IsNullOrEmpty(Vin))
             {
@@ -76,9 +82,20 @@ namespace FirstMauiApp.ViewModels
                 Vin = Vin
             };
 
-            App.CarService.AddCar(car);
-            await Shell.Current.DisplayAlert("Success", App.CarService.StatusMessage, "Ok");
+            if (CarId != 0)
+            {
+                car.Id = CarId;
+                App.CarService.UpdateCar(car);
+                await Shell.Current.DisplayAlert("Info", App.CarService.StatusMessage, "Ok");
+            }
+            else
+            {
+                App.CarService.AddCar(car);
+                await Shell.Current.DisplayAlert("Info", App.CarService.StatusMessage, "Ok");
+            }
+
             await GetCarListAsync();
+            await ClearFormAsync();
         }
 
         [RelayCommand]
@@ -102,7 +119,29 @@ namespace FirstMauiApp.ViewModels
         [RelayCommand]
         async Task UpdateCarAsync(int id)
         {
+            AddEditButtonText = editButtonText;
             return;
+        }
+
+        [RelayCommand]
+        async Task SetEditMode(int id)
+        {
+            AddEditButtonText = editButtonText;
+            CarId = id;
+            var car = App.CarService.GetCar(id);
+            Make = car.Make;
+            Model = car.Model;
+            Vin = car.Vin;
+        }
+
+        [RelayCommand]
+        async Task ClearFormAsync()
+        {
+            AddEditButtonText = createButtonText;
+            CarId = 0;
+            Make = string.Empty;
+            Model = string.Empty;
+            Vin = string.Empty;
         }
     }
 }

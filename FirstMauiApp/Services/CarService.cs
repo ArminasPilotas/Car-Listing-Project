@@ -87,5 +87,25 @@ namespace FirstMauiApp.Services
 
             return default;
         }
+
+        public void UpdateCar(Car car)
+        {
+            try
+            {
+                Init();
+
+                if (car is null)
+                {
+                    throw new Exception("Invalid Car Record");
+                }
+
+                var result = conn.Update(car);
+                StatusMessage = result == 0 ? "Update Failed" : "Update Successful";
+            }
+            catch (Exception)
+            {
+                StatusMessage = "Failed to Update data.";
+            }
+        }
     }
 }

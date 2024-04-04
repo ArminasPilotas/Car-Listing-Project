@@ -64,7 +64,7 @@ namespace CarListApp.Api
                 return Results.NoContent();
             });
 
-            app.MapPost("/cars", async (int id, Car car, CarListDbContext db) =>
+            app.MapPost("/cars", async (Car car, CarListDbContext db) =>
             {
                 await db.AddAsync(car);
                 await db.SaveChangesAsync();

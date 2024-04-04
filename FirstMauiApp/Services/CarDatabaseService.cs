@@ -3,14 +3,14 @@ using SQLite;
 
 namespace FirstMauiApp.Services
 {
-    public class CarService
+    public class CarDatabaseService
     {
         SQLiteConnection conn;
         string _dbPath;
         public string StatusMessage;
 
 
-        public CarService(string dbPath)
+        public CarDatabaseService(string dbPath)
         {
             _dbPath = dbPath;
         }

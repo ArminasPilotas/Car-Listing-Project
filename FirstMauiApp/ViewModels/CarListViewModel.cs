@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FirstMauiApp.Models;
+using FirstMauiApp.Services;
 using FirstMauiApp.Views;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -11,10 +12,13 @@ namespace FirstMauiApp.ViewModels
     {
         const string editButtonText = "Update Car";
         const string createButtonText = "Add Car";
+        private readonly CarApiService carApiService;
+        string message = string.Empty;
         public ObservableCollection<Car> Cars { get; private set; } = [];
 
-        public CarListViewModel()
+        public CarListViewModel(CarApiService carApiService)
         {
+            this.carApiService = carApiService;
             Title = "Car List";
             AddEditButtonText = createButtonText;
             GetCarListAsync().Wait();
@@ -42,14 +46,13 @@ namespace FirstMauiApp.ViewModels
             {
                 IsLoading = true;
                 if (Cars.Any()) Cars.Clear();
-
-                var cars = App.CarService.GetCars();
+                var cars = await carApiService.GetCarsAsync();
                 foreach (var car in cars) Cars.Add(car);
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Unable to get cars: {ex.Message}.");
-                await Shell.Current.DisplayAlert("Error", "Failed to retrieve list of cars.", "Ok");
+                await ShowAlert("Failed to retrieve list of cars.");
             }
             finally
             {
@@ -71,7 +74,7 @@ namespace FirstMauiApp.ViewModels
         {
             if (string.IsNullOrEmpty(Make) ||  string.IsNullOrEmpty(Model) || string.IsNullOrEmpty(Vin))
             {
-                await Shell.Current.DisplayAlert("Invalid Data", "Please insert valid data", "Ok");
+                await ShowAlert("Please insert valid data");
                 return;
             }
 
@@ -84,16 +87,15 @@ namespace FirstMauiApp.ViewModels
 
             if (CarId != 0)
             {
-                car.Id = CarId;
-                App.CarService.UpdateCar(car);
-                await Shell.Current.DisplayAlert("Info", App.CarService.StatusMessage, "Ok");
+                await carApiService.UpdateCarAsync(CarId, car);
+                message = carApiService.StatusMessage;
             }
             else
             {
-                App.CarService.AddCar(car);
-                await Shell.Current.DisplayAlert("Info", App.CarService.StatusMessage, "Ok");
+                await carApiService.AddCarAsync(car);
+                message = carApiService.StatusMessage;
             }
-
+            await ShowAlert(message);
             await GetCarListAsync();
             await ClearFormAsync();
         }
@@ -103,17 +105,15 @@ namespace FirstMauiApp.ViewModels
         {
             if (id == 0)
             {
-                await Shell.Current.DisplayAlert("Invalid Record", "Please try again", "Ok");
+                await ShowAlert("Please try again");
                 return;
             }
 
-            var result = App.CarService.DeleteCar(id);
-            if (result == default) await Shell.Current.DisplayAlert("Failed", "Please insert valid data", "Ok");
-            else
-            {
-                await Shell.Current.DisplayAlert("Deletion Successful", "Record Removed Successfully", "Ok");
-                await GetCarListAsync();
-            }
+            await carApiService.DeleteCarAsync(id);
+            message = carApiService.StatusMessage;
+            
+            await ShowAlert(message);
+            await GetCarListAsync();
         }
 
         [RelayCommand]
@@ -142,6 +142,11 @@ namespace FirstMauiApp.ViewModels
             Make = string.Empty;
             Model = string.Empty;
             Vin = string.Empty;
+        }
+
+        private async Task ShowAlert(string message)
+        {
+            await Shell.Current.DisplayAlert("Info", message, "Ok");
         }
     }
 }

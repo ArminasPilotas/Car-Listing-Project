@@ -4,9 +4,9 @@ namespace FirstMauiApp
 {
     public partial class App : Application
     {
-        public static CarService CarService { get; private set; }
+        public static CarDatabaseService CarService { get; private set; }
 
-        public App(CarService carService)
+        public App(CarDatabaseService carService)
         {
             InitializeComponent();
 

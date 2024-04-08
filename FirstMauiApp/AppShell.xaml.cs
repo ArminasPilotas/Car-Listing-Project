@@ -9,6 +9,8 @@ namespace FirstMauiApp
             InitializeComponent();
 
             Routing.RegisterRoute(nameof(CarDetailsPage), typeof(CarDetailsPage));
+            Routing.RegisterRoute(nameof(LoginPage), typeof(LoginPage));
+            Routing.RegisterRoute(nameof(MainPage), typeof(MainPage));
         }
     }
 }

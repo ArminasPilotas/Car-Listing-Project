@@ -137,7 +137,7 @@ namespace CarListApp.Api
                 {
                     new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                    new Claim(ClaimTypes.Email, user.Email),
                     new Claim("Email_confirmed", user.EmailConfirmed.ToString())
                 }.Union(claims)
                 .Union(roles.Select(role => new Claim(ClaimTypes.Role, role)));

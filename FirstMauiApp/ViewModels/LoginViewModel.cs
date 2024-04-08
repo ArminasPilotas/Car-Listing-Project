@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FirstMauiApp.Helpers;
 using FirstMauiApp.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -46,6 +47,7 @@ namespace FirstMauiApp.ViewModels
                         Role = jsonToken.Claims.FirstOrDefault(claim => claim.Type.Equals(ClaimTypes.Role))?.Value
                     };
 
+                    MenuBuilder.BuildMenu();
                     await Shell.Current.GoToAsync($"//{nameof(MainPage)}");
                 }
                 else

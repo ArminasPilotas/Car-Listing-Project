@@ -1,4 +1,6 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using FirstMauiApp.Helpers;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace FirstMauiApp.ViewModels
 {
@@ -28,6 +30,13 @@ namespace FirstMauiApp.ViewModels
                 }
                 else
                 {
+                    App.UserInfo = new Models.UserInfo()
+                    {
+                        Username = jsonToken.Claims.FirstOrDefault(claim => claim.Type.Equals(ClaimTypes.Email))?.Value,
+                        Role = jsonToken.Claims.FirstOrDefault(claim => claim.Type.Equals(ClaimTypes.Role))?.Value
+                    };
+
+                    MenuBuilder.BuildMenu();
                     await GoToMainPage();
                 }
             }

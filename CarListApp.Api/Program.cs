@@ -1,7 +1,11 @@
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace CarListApp.Api
 {
@@ -27,6 +31,32 @@ namespace CarListApp.Api
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<CarListDbContext>();
 
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+                    ValidateAudience = true,
+                    ValidAudience = builder.Configuration["JwtSettings:Audience"],
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
+                };
+            });
+
+            builder.Services.AddAuthorization(options =>
+            {
+                options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+                .RequireAuthenticatedUser()
+                .Build();
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -34,9 +64,13 @@ namespace CarListApp.Api
             app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
+            app.UseAuthentication();
+            app.UseAuthorization();
+
             app.UseCors("AllowAll");
 
             app.MapGet("/cars", async (CarListDbContext db) => await db.Cars.ToListAsync());
+
             app.MapGet("/cars/{id}", async (int id, CarListDbContext db) =>
                 await db.Cars.FindAsync(id) is Car car ? Results.Ok(car) : Results.NotFound()
             );
@@ -100,7 +134,7 @@ namespace CarListApp.Api
                 };
 
                 return Results.Ok(response);
-            });
+            }).AllowAnonymous();
 
             app.Run();
         }

@@ -1,4 +1,5 @@
 ﻿using FirstMauiApp.Models;
+using FirstMauiApp.ViewModels;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,7 @@ namespace FirstMauiApp.Services
         {
             try
             {
+                await SetAuthTokenAsync();
                 var response = await _httpClient.GetStringAsync("/cars");
                 return JsonConvert.DeserializeObject<List<Car>>(response);
             }
@@ -92,6 +94,28 @@ namespace FirstMauiApp.Services
             {
                 StatusMessage = "Failed to update record.";
             }
+        }
+
+        public async Task<AuthResponseModel> LoginAsync(LoginModel loginModel)
+        {
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync("/login", loginModel);
+                response.EnsureSuccessStatusCode();
+                StatusMessage = "Login Successful";
+                return JsonConvert.DeserializeObject<AuthResponseModel>(await response.Content.ReadAsStringAsync());
+            }
+            catch (Exception)
+            {
+                StatusMessage = "Failed to login successfully.";
+                return default;
+            }
+        }
+
+        public async Task SetAuthTokenAsync()
+        {
+            var token = await SecureStorage.GetAsync("Token");
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
         }
     }
 }

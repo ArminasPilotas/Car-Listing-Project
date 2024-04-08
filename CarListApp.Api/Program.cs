@@ -74,6 +74,34 @@ namespace CarListApp.Api
                 return Results.Created($"/cars/{car.Id}", car);
             });
 
+            app.MapPost("/login", async (LoginDto loginDto, CarListDbContext db, UserManager<IdentityUser> _userManager) =>
+            {
+                var user = await _userManager.FindByNameAsync(loginDto.Username);
+
+                if (user is null)
+                {
+                    return Results.Unauthorized();
+                }
+
+                var isValidPassword = await _userManager.CheckPasswordAsync(user, loginDto.Password);
+
+                if (!isValidPassword)
+                {
+                    return Results.Unauthorized();
+                }
+
+                // Generate an access token
+
+                var response = new AuthResponseDto
+                {
+                    UserId = user.Id,
+                    Username = user.UserName,
+                    Token = "AccessTokenHere"
+                };
+
+                return Results.Ok(response);
+            });
+
             app.Run();
         }
     }

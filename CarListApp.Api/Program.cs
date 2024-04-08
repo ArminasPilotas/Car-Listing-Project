@@ -1,4 +1,5 @@
 
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,9 +10,6 @@ namespace CarListApp.Api
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
-            builder.Services.AddAuthorization();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -24,6 +22,10 @@ namespace CarListApp.Api
             var dbPath = Path.Join(Directory.GetCurrentDirectory(), "carlist.db");
             var conn = new SqliteConnection("Data Source=C:\\carlistdb\\carlist.db");
             builder.Services.AddDbContext<CarListDbContext>(options => options.UseSqlite(conn));
+
+            builder.Services.AddIdentityCore<IdentityUser>()
+                .AddRoles<IdentityRole>()
+                .AddEntityFrameworkStores<CarListDbContext>();
 
             var app = builder.Build();
 

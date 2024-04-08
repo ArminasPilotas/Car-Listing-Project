@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 namespace CarListApp.Api
@@ -126,11 +128,35 @@ namespace CarListApp.Api
 
                 // Generate an access token
 
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]));
+                var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+                var roles = await _userManager.GetRolesAsync(user);
+                var claims = await _userManager.GetClaimsAsync(user);
+                var tokenClaims = new List<Claim>
+                {
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                    new Claim("Email_confirmed", user.EmailConfirmed.ToString())
+                }.Union(claims)
+                .Union(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+                var securityToken = new JwtSecurityToken(
+                    issuer: builder.Configuration["JwtSettings:Issuer"],
+                    audience: builder.Configuration["JwtSettings:Audience"],
+                    claims: tokenClaims,
+                    expires: DateTime.UtcNow.AddMinutes(Convert.ToInt32(builder.Configuration["JwtSettings:Issuer"])),
+                    signingCredentials: credentials
+                    );
+
+                var accessToken = new JwtSecurityTokenHandler().WriteToken(securityToken);
+
                 var response = new AuthResponseDto
                 {
                     UserId = user.Id,
                     Username = user.UserName,
-                    Token = "AccessTokenHere"
+                    Token = accessToken
                 };
 
                 return Results.Ok(response);

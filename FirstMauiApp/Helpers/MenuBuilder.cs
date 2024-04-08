@@ -26,12 +26,6 @@ namespace FirstMauiApp.Helpers
                             Icon = "dotnet_bot.svg",
                             Title = "Admin Page 1",
                             ContentTemplate = new DataTemplate(typeof(MainPage))
-                        },
-                        new ShellContent
-                        {
-                            Icon = "dotnet_bot.svg",
-                            Title = "Admin Page 2",
-                            ContentTemplate = new DataTemplate(typeof(MainPage))
                         }
                     }
                 };
@@ -56,12 +50,6 @@ namespace FirstMauiApp.Helpers
                             Icon = "dotnet_bot.svg",
                             Title = "User Page 1",
                             ContentTemplate = new DataTemplate(typeof(MainPage))
-                        },
-                        new ShellContent
-                        {
-                            Icon = "dotnet_bot.svg",
-                            Title = "User Page 2",
-                            ContentTemplate = new DataTemplate(typeof(MainPage))
                         }
                     }
                 };
@@ -70,6 +58,27 @@ namespace FirstMauiApp.Helpers
                 {
                     Shell.Current.Items.Add(flyOutItem);
                 }
+            }
+
+            var logoutFlyoutItem = new FlyoutItem()
+            {
+                Title = "Logout",
+                Route = nameof(LogoutPage),
+                FlyoutDisplayOptions = FlyoutDisplayOptions.AsSingleItem,
+                Items =
+                {
+                    new ShellContent
+                    {
+                        Icon = "dotnet_bot.svg",
+                        Title = "Logout",
+                        ContentTemplate = new DataTemplate(typeof(LogoutPage))
+                    }
+                }
+            };
+
+            if (!Shell.Current.Items.Contains(logoutFlyoutItem))
+            {
+                Shell.Current.Items.Add(logoutFlyoutItem);
             }
         }
     }
